@@ -1,5 +1,6 @@
 package com.example.diaryapplication.Fragment;
 
+import android.icu.util.DateInterval;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -7,8 +8,14 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.diaryapplication.R;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.zip.Inflater;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -25,6 +32,9 @@ public class WriteboardFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    TextView monthDay, weekDay;
+    EditText diaryArea;
 
     public WriteboardFragment() {
         // Required empty public constructor
@@ -60,7 +70,27 @@ public class WriteboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_writeboard, container, false);
+        monthDay = view.findViewById(R.id.write_monthDay);
+        weekDay = view.findViewById(R.id.write_weekDay);
+        diaryArea = view.findViewById(R.id.write_diaryArea);
+
+        Date date = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String currentDate = dateFormat.format(date);
+        String[] dateArray = currentDate.split("/");
+        String year = dateArray[0];
+        String month = dateArray[1];
+        String day = dateArray[2];
+
+        String[] weekDayList = {"월", "화", "수", "목", "금", "토", "일"};
+        String weekday = weekDayList[date.getDay()-1];
+
+        monthDay.setText(month+" 월 "+day+" 일 ");
+        weekDay.setText(weekday+"요일");
+
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_writeboard, container, false);
+        return view;
     }
 }
