@@ -24,15 +24,22 @@ import java.util.Date;
 public class IntroActivity extends AppCompatActivity {
 
     private LinearLayout mainLayout, joinLayout, loginLayout;
-    private EditText join_nameEdit, join_emailEdit, join_passwordEdit, join_passwordConfirm;
+    private EditText join_nameEdit, join_emailEdit, join_passwordEdit, join_passwordConfirm, login_email, login_password;
     private FirebaseDatabase database;
     private DatabaseReference userReference;
     private DatabaseReference checkReference;
+    private MySharedPreference mySharedPreference = new MySharedPreference();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
+        String isLoginValue = mySharedPreference.getPreference(this, "email");
+        if(isLoginValue!=null){
+            Intent intent = new Intent(IntroActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish(); // activity 종료
+        }
 
         mainLayout = findViewById(R.id.intro_mainLayout);
         joinLayout = findViewById(R.id.intro_joinLayout);
@@ -42,6 +49,9 @@ public class IntroActivity extends AppCompatActivity {
         join_emailEdit = findViewById(R.id.join_emailEdit);
         join_passwordEdit = findViewById(R.id.join_passwordEdit);
         join_passwordConfirm = findViewById(R.id.join_passwordConfirm);
+
+        login_email = findViewById(R.id.login_email);
+        login_password = findViewById(R.id.login_password);
 
         database = FirebaseDatabase.getInstance();
         userReference = database.getReference("User");
@@ -59,9 +69,9 @@ public class IntroActivity extends AppCompatActivity {
                 joinLayout.setVisibility(View.VISIBLE);
                 break;
             case R.id.intro_notLoginBtn: //로그인 없이 접속
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY); //현재 Activity를 stack에서 제거
+                Intent intent = new Intent(IntroActivity.this, MainActivity.class);
                 startActivity(intent);
+                finish(); // activity 종료
                 break;
             case R.id.join_submitBtn: //회원가입
                 addUser();
@@ -73,6 +83,11 @@ public class IntroActivity extends AppCompatActivity {
             case R.id.login_toMainBtn:
                 loginLayout.setVisibility(View.GONE);
                 mainLayout.setVisibility(View.VISIBLE);
+                break;
+            case R.id.login_loginBtn:
+                String email = login_email.getText().toString();
+                String password = login_password.getText().toString();
+                loginUserCheck(email, password);
                 break;
         }
     }
@@ -94,7 +109,7 @@ public class IntroActivity extends AppCompatActivity {
                 //비밀번호 확인
                 if(!password.equals(passwordConfirm)){
                     Log.i("비밀번호 확인 ", "다름");
-                    Toast.makeText(getApplicationContext(), "비밀번호를 확인하세요", Toast.LENGTH_LONG);
+                    Toast.makeText(IntroActivity.this, "비밀번호를 확인하세요", Toast.LENGTH_LONG);
                     return;
                 }
 
@@ -115,7 +130,7 @@ public class IntroActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "이미 등록된 이메일 입니다", Toast.LENGTH_LONG);
                 }else {
                     userReference.child(email).setValue(new UserDTO(name, email, password, dateFormat.format(new Date())));
-                    Toast.makeText(getApplicationContext(), "회원가입 완료!", Toast.LENGTH_LONG);
+                    Toast.makeText(IntroActivity.this, "회원가입 완료!", Toast.LENGTH_LONG);
                     joinLayout.setVisibility(View.GONE);
                     loginLayout.setVisibility(View.VISIBLE);
                 }
@@ -123,9 +138,39 @@ public class IntroActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getApplicationContext(), "Error : "+error, Toast.LENGTH_LONG).show();
+                Toast.makeText(IntroActivity.this, "Error : "+error, Toast.LENGTH_LONG).show();
             }
         });
 
-    }
+    } // addUser
+
+    //로그인 회원정보 확인
+    public void loginUserCheck(String email, String password){
+        Log.i("email", email);
+        Log.i("password", password);
+        userReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot snap : snapshot.getChildren()){
+                    UserDTO user = snap.getValue(UserDTO.class);
+                    if(user.getEmail().equals(email) & user.getPassword().equals(password)){
+
+                        mySharedPreference.putPreference(IntroActivity.this, "email", email);
+
+                        Intent intent = new Intent(IntroActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish(); // activity 종료
+                        return;
+                    }
+                }
+                Toast.makeText(IntroActivity.this, "Email 혹은 비밀번호가 일치하지 않습니다.", Toast.LENGTH_LONG).show();
+                Log.i("Login : ", "입력정보 불일치");
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.i("error : ", error+"");
+            }
+        });
+    }//loginUserCheck
 }
