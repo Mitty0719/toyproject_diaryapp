@@ -39,6 +39,12 @@
             android:gravity="start|top"
             android:inputType="textMultiLine" />
 
+        <Button
+            android:id="@+id/write_saveBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="작성 테스트 버튼" />
+
     </LinearLayout>
 
 </FrameLayout>
