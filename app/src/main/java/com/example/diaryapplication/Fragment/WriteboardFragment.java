@@ -1,16 +1,22 @@
 package com.example.diaryapplication.Fragment;
 
 import android.icu.util.DateInterval;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.diaryapplication.DTO.DiaryDTO;
+import com.example.diaryapplication.MainActivity;
+import com.example.diaryapplication.MySQLiteClass;
 import com.example.diaryapplication.R;
 
 import java.text.SimpleDateFormat;
@@ -35,6 +41,8 @@ public class WriteboardFragment extends Fragment {
 
     TextView monthDay, weekDay;
     EditText diaryArea;
+    Button saveBtn;
+    MySQLiteClass sqliteDB;
 
     public WriteboardFragment() {
         // Required empty public constructor
@@ -75,7 +83,10 @@ public class WriteboardFragment extends Fragment {
         monthDay = view.findViewById(R.id.write_monthDay);
         weekDay = view.findViewById(R.id.write_weekDay);
         diaryArea = view.findViewById(R.id.write_diaryArea);
+        saveBtn = view.findViewById(R.id.write_saveBtn);
+        sqliteDB = new MySQLiteClass(getActivity().getApplicationContext());
 
+        //날짜 설정
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
         String currentDate = dateFormat.format(date);
@@ -90,7 +101,39 @@ public class WriteboardFragment extends Fragment {
         monthDay.setText(month+" 월 "+day+" 일 ");
         weekDay.setText(weekday+"요일");
 
+
+        //임시 버튼 클릭
+        saveBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("임시 버튼", "클릭됨");
+                String content = diaryArea.getText().toString();
+                String weather = "맑음";
+                String date = monthDay.getText().toString()+"-"+weekDay.getText().toString();
+                date = date.replace(" ", "");
+                DiaryDTO diary = new DiaryDTO(date, weather, content);
+                sqliteDB.insertDiary(diary);
+            }
+        });
+
+
+
         // Inflate the layout for this fragment
         return view;
+    }// onCreateView
+
+    public DiaryDTO getDiaryData(){
+        String content = "";
+        String weather = "";
+        String date = "";
+
+        content = diaryArea.getText().toString();
+        weather = "맑음";
+        date = monthDay.getText().toString()+"-"+weekDay.getText().toString();
+        date = date.replace(" ", "");
+
+        DiaryDTO diary = new DiaryDTO(weather, content, date);
+
+        return diary;
     }
 }

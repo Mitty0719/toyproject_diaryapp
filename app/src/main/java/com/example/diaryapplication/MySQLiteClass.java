@@ -26,24 +26,24 @@ public class MySQLiteClass {
     }
 
     public void insertDiary(DiaryDTO diary){
-        String sql = "INSERT INTO diary " +
-                "VALUES( " +
-                diary.getWeather() + ", " +
-                diary.getContent() + ", " +
+        String sql = "INSERT INTO diary(date, weather, content) " +
+                "VALUES( '" +
+                diary.getWeather() + "', '" +
+                diary.getContent() + "', '" +
                 diary.getDate() +
-                ")";
+                "')";
         database.execSQL(sql);
     }
-    public void deleteDiary(int id){
+    public void deleteDiary(String date){
         String sql = "DELETE FROM diary " +
-                "WHERE _id = " + id;
+                "WHERE date = " + date;
         database.execSQL(sql);
     }
     public void updateDiary(DiaryDTO diary){
         String sql = "UPDATE diary SET " +
-                "weather = "+ diary.getWeather() + ", "+
-                "content = "+ diary.getContent() + " "+
-                "WHERE _id = " + diary.getId();
+                "weather = '"+ diary.getWeather() + "', "+
+                "content = '"+ diary.getContent() + "' "+
+                "WHERE date = '" + diary.getDate() + "' ";
         database.execSQL(sql);
     }
     public DiaryDTO getDiaryById(int id){
@@ -102,9 +102,9 @@ public class MySQLiteClass {
         @Override
         public void onCreate(SQLiteDatabase db) {
             String sql = "CREATE TABLE IF NOT EXISTS diary( " +
-                    "_id INTEGER PRIMARY KEY AUTOINCREMENT " +
-                    "weather TEXT" +
-                    "content TEXT " +
+                    "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "weather TEXT, " +
+                    "content TEXT, " +
                     "date TEXT" +
                     ")"; //추가 내용있으면 table drop하고 다시 만들기!
             db.execSQL(sql);

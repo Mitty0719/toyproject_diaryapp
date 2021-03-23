@@ -37,7 +37,8 @@
             android:layout_height="500dp"
             android:ems="10"
             android:gravity="start|top"
-            android:inputType="textMultiLine" />
+            android:inputType="textMultiLine"
+            android:text=" " />
 
         <Button
             android:id="@+id/write_saveBtn"
