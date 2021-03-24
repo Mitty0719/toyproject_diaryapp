@@ -9,6 +9,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,7 +24,6 @@ import com.example.diaryapplication.Fragment.WriteboardFragment;
 public class MainActivity extends FragmentActivity {
     private ViewPager2 mainPagerView;
     private SlidePagerAdapter pagerAdapter;
-    MySQLiteClass sqliteDB;
 
     private static final int NUM_PAGES = 2;
 
@@ -35,10 +35,12 @@ public class MainActivity extends FragmentActivity {
         mainPagerView = findViewById(R.id.mainPagerView);
         pagerAdapter = new SlidePagerAdapter(this);
         mainPagerView.setAdapter(pagerAdapter);
-        sqliteDB = new MySQLiteClass(this);
-        
-        DiarySaveThread thread = new DiarySaveThread(); //Thread가 Fragment 생성되기 전에 실행되 nullReferenceExceptino을 보냄
-        thread.start();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -77,30 +79,4 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
-    //자동저장 Thread
-    public class DiarySaveThread extends Thread{
-
-        public DiarySaveThread(){}
-        @Override
-        public void run() {
-            while(true){
-                try {
-                    WriteboardFragment fragment = new WriteboardFragment();
-                    DiaryDTO diary = fragment.getDiaryData();
-
-//                    String content = diaryArea.getText().toString();
-//                    String weather = "맑음";
-//                    String date = monthDay.getText().toString()+"-"+weekDay.getText().toString();
-//                    date = date.replace(" ", "");
-//                    DiaryDTO diary = new DiaryDTO(weather, content, date);
-                    sqliteDB.updateDiary(diary);
-                    sleep(3000);
-                    Log.i("Thread", "호출");
-                    Log.i("month", diary.toString());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    } //DiarySaveThread
 }

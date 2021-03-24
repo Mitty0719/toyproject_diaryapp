@@ -4,6 +4,7 @@ import android.icu.util.DateInterval;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -122,6 +123,14 @@ public class WriteboardFragment extends Fragment {
         return view;
     }// onCreateView
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        //나중에 다시켜기
+        //DiarySaveThread thread = new DiarySaveThread();
+        //thread.start();
+    }
+
     public DiaryDTO getDiaryData(){
         String content = "";
         String weather = "";
@@ -136,4 +145,30 @@ public class WriteboardFragment extends Fragment {
 
         return diary;
     }
+
+
+    //자동저장 Thread
+    public class DiarySaveThread extends Thread{
+
+        public DiarySaveThread(){}
+        @Override
+        public void run() {
+            while(true){
+                try {
+
+                    String content = diaryArea.getText().toString();
+                    String weather = "맑음";
+                    String date = monthDay.getText().toString()+"-"+weekDay.getText().toString();
+                    date = date.replace(" ", "");
+                    DiaryDTO diary = new DiaryDTO(weather, content, date);
+                    sqliteDB.updateDiary(diary);
+                    sleep(3000);
+                    Log.i("Thread", "호출");
+                    Log.i("month", diary.toString());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    } //DiarySaveThread
 }
